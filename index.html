@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PodScript Studio | RSS • YouTube • Transcribe • Publish</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+  
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg-elevated: #111;
+      --surface: #1a1a1a;
+      --surface-hover: #242424;
+      --primary: #e50914;
+      --primary-hover: #f40612;
+      --accent: #b8956e;
+      --success: #46d369;
+      --warning: #f5c518;
+      --text: #ffffff;
+      --text-dim: #b3b3b3;
+      --text-muted: #666;
+      --border: #333;
+      --transition: cubic-bezier(0.4, 0, 0.2, 1);
+      --shadow: 0 8px 32px rgba(0,0,0,0.4);
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    h1, h2, h3, h4 { font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 0.75rem 2rem;
+      background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, transparent 100%);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s;
+    }
+    
+    .navbar.scrolled {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      font-family: 'Cinzel', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--primary);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .nav-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .nav-tab:hover { color: var(--text); background: var(--surface-hover); }
+    .nav-tab.active { background: var(--primary); color: white; }
+
+    .nav-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .model-badge {
+      font-size: 0.75rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 100px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .model-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+    
+    .model-dot.ready { background: var(--success); }
+    .model-dot.loading { background: var(--warning); animation: pulse 1.5s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+    }
+
+    .btn:hover { background: var(--surface-hover); border-color: var(--text-muted); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-success { background: var(--success); border-color: var(--success); color: #000; }
+
+    /* ===== MAIN CONTENT ===== */
+    main { padding-top: 60px; min-height: 100vh; }
+
+    .view { display: none; animation: fadeIn 0.4s ease; }
+    .view.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== PITCH DECK VIEW ===== */
+    .hero {
+      position: relative;
+      height: 80vh;
+      min-height: 450px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: blur(60px) brightness(0.3);
+      transform: scale(1.3);
+      transition: background-image 0.8s ease;
+    }
+
+    .hero-gradient {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60%;
+      background: linear-gradient(to top, var(--bg), transparent);
+    }
+
+    .player-stage {
+      position: relative;
+      z-index: 10;
+      width: 90%;
+      max-width: 1000px;
+      aspect-ratio: 16/9;
+      background: #000;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .player-stage video, .player-stage audio {
+      width: 100%;
+      height: 100%;
+      outline: none;
+    }
+
+    .player-stage audio {
+      position: absolute;
+      bottom: 20px;
+      width: 90%;
+      height: 50px;
+    }
+
+    .player-cover {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.7;
+    }
+
+    .hero-meta {
+      position: absolute;
+      bottom: 12%;
+      left: 5%;
+      z-index: 20;
+      max-width: 500px;
+      transition: opacity 0.5s;
+    }
+
+    .hero-label {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--primary);
+      background: rgba(0,0,0,0.6);
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.5rem, 4vw, 3rem);
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    }
+
+    .hero-desc {
+      color: #ccc;
+      font-size: 0.95rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .hero-buttons { display: flex; gap: 0.75rem; }
+
+    .btn-play {
+      background: white;
+      color: black;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.2s;
+    }
+
+    .btn-play:hover { transform: scale(1.05); }
+
+    .btn-secondary {
+      background: rgba(109,109,109,0.7);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover { background: rgba(109,109,109,0.5); }
+
+    /* Content Section */
+    .content-section {
+      padding: 2rem 4%;
+      position: relative;
+      z-index: 5;
+      margin-top: -3rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .section-title { font-size: 1.3rem; color: #e5e5e5; }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .input-group input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      min-width: 300px;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s var(--transition), box-shadow 0.3s;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+      z-index: 10;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+    }
+
+    .card-img-wrap {
+      aspect-ratio: 16/9;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+
+    .card:hover .card-img { transform: scale(1.05); }
+
+    .card-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.85);
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .card-content { padding: 0.85rem; }
+
+    .card-meta {
+      font-size: 0.7rem;
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ===== YOUTUBE VIEW ===== */
+    .page-view {
+      padding: 2rem 4%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      padding-top: 1.5rem;
+    }
+
+    .page-header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      margin-bottom: 0.75rem;
+    }
+
+    .page-header h1 span { color: var(--primary); }
+
+    .page-header p {
+      color: var(--text-dim);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .input-hero {
+      display: flex;
+      gap: 0.5rem;
+      max-width: 700px;
+      margin: 2rem auto;
+    }
+
+    .input-hero input {
+      flex: 1;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      color: var(--text);
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .input-hero input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .input-hero input::placeholder { color: var(--text-muted); }
+
+    .info-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 2rem;
+      max-width: 800px;
+      margin: 2rem auto;
+    }
+
+    .info-box h3 {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .info-box ol {
+      padding-left: 1.5rem;
+      color: var(--text-dim);
+    }
+
+    .info-box li {
+      margin-bottom: 0.75rem;
+      line-height: 1.7;
+    }
+
+    .info-box code {
+      background: var(--bg);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.9em;
+      color: var(--accent);
+    }
+
+    .info-box a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .info-box a:hover { text-decoration: underline; }
+
+    .yt-video-list { margin-top: 2rem; }
+
+    .yt-video-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: grid;
+      grid-template-columns: 160px 1fr auto;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .yt-video-thumb {
+      width: 160px;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: 4px;
+      background: var(--bg);
+    }
+
+    .yt-video-info h4 {
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .yt-video-info p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .yt-video-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    /* ===== TRANSCRIBE VIEW ===== */
+    .model-loader {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+
+    .model-loader-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .model-loader-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+    }
+
+    .progress-bar-wrap {
+      background: var(--bg);
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 0.4rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .model-status-text {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .upload-box {
+      background: var(--surface);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .upload-box:hover, .upload-box.dragover {
+      border-color: var(--primary);
+      background: var(--surface-hover);
+    }
+
+    .upload-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .upload-title { font-weight: 600; margin-bottom: 0.4rem; }
+    .upload-hint { font-size: 0.85rem; color: var(--text-muted); }
+
+    .queue-section {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 1.5rem;
+      min-height: 450px;
+    }
+
+    .queue-sidebar {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      overflow-y: auto;
+      max-height: 550px;
+    }
+
+    .queue-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .queue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .queue-item {
+      background: var(--bg);
+      border-radius: var(--radius);
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .queue-item:hover { background: var(--surface-hover); }
+    .queue-item.active { background: var(--primary); }
+    .queue-item.completed { background: rgba(70, 211, 105, 0.15); border: 1px solid var(--success); }
+    .queue-item.transcribing { background: rgba(245, 197, 24, 0.15); border: 1px solid var(--warning); }
+    .queue-item.error { background: rgba(229, 9, 20, 0.15); border: 1px solid var(--primary); }
+
+    .queue-item-title {
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 0.15rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .queue-item-meta { font-size: 0.7rem; color: var(--text-muted); }
+    .queue-item-status { position: absolute; top: 0.75rem; right: 0.75rem; font-size: 0.85rem; }
+
+    .queue-item-progress {
+      margin-top: 0.4rem;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .queue-item-progress-bar {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.3s;
+    }
+
+    .transcription-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .transcription-header-panel {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+    }
+
+    .current-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .transcription-controls {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .overall-progress {
+      flex: 1;
+      min-width: 140px;
+    }
+
+    .overall-progress-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .transcript-output {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      flex: 1;
+      overflow-y: auto;
+      min-height: 280px;
+      max-height: 400px;
+    }
+
+    .transcript-placeholder {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .transcript-placeholder-icon { font-size: 3rem; margin-bottom: 0.75rem; opacity: 0.3; }
+
+    .transcript-text {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.05rem;
+      line-height: 1.85;
+      color: var(--text);
+    }
+
+    .transcript-text p {
+      margin-bottom: 1rem;
+      text-indent: 1.25rem;
+    }
+
+    .transcript-text p:first-child { text-indent: 0; }
+
+    /* ===== BOOK VIEW ===== */
+    .book-container {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 1.5rem;
+      min-height: calc(100vh - 140px);
+    }
+
+    .book-preview {
+      background: #fff;
+      color: #1a1612;
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      overflow-y: auto;
+      max-height: calc(100vh - 140px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .book-title-page {
+      text-align: center;
+      padding: 3rem 0;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #1a1612;
+    }
+
+    .book-title-main {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: #1a1612;
+      margin-bottom: 0.5rem;
+    }
+
+    .book-subtitle { font-size: 1rem; color: #8b7355; margin-bottom: 1.25rem; }
+    .book-ornament { font-size: 1.25rem; color: #c4563a; margin: 1rem 0; }
+    .book-author { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem; }
+
+    .chapter { margin-bottom: 2rem; page-break-before: always; }
+
+    .chapter-header {
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .chapter-number {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #c4563a;
+      margin-bottom: 0.25rem;
+    }
+
+    .chapter-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #1a1612;
+    }
+
+    .chapter-content {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.95rem;
+      line-height: 1.8;
+      text-align: justify;
+      color: #333;
+    }
+
+    .chapter-content p {
+      margin-bottom: 0.75rem;
+      text-indent: 1.25rem;
+    }
+
+    .chapter-content p:first-child { text-indent: 0; }
+
+    .book-settings {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-height: calc(100vh - 140px);
+      overflow-y: auto;
+    }
+
+    .settings-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .setting-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .setting-label { font-size: 0.8rem; color: var(--text-dim); font-weight: 500; }
+
+    .setting-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+
+    .setting-input:focus { outline: none; border-color: var(--primary); }
+
+    .setting-select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .checkbox-group { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .export-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: auto;
+    }
+
+    .export-btn {
+      padding: 0.75rem;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .export-btn:hover { transform: translateY(-2px); }
+    .export-btn.pdf { background: var(--primary); color: white; }
+    .export-btn.html { background: var(--accent); color: white; }
+    .export-btn.txt { background: var(--surface-hover); color: var(--text); border: 1px solid var(--border); }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      backdrop-filter: blur(8px);
+    }
+
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .modal {
+      background: var(--surface);
+      max-width: 500px;
+      width: 90%;
+      padding: 2rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .modal h2 {
+      font-family: 'Cinzel', serif;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    /* ===== NOTIFICATION ===== */
+    .notification {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.85rem 1.25rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      z-index: 3000;
+      animation: slideIn 0.3s ease;
+      max-width: 380px;
+      font-size: 0.9rem;
+    }
+
+    .notification.success { border-color: var(--success); }
+    .notification.error { border-color: var(--primary); }
+    .notification.warning { border-color: var(--warning); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .queue-section { grid-template-columns: 1fr; }
+      .queue-sidebar { max-height: 180px; }
+      .book-container { grid-template-columns: 1fr; }
+      .book-preview { max-height: 450px; }
+    }
+
+    @media (max-width: 768px) {
+      .navbar { padding: 0.5rem 1rem; }
+      .nav-tabs { display: none; }
+      .hero { height: 55vh; min-height: 380px; }
+      .hero-meta { position: relative; bottom: auto; left: auto; background: var(--bg); padding: 1.25rem; margin: 0; max-width: 100%; }
+      .content-section { margin-top: 0; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+      .card-desc { display: none; }
+      .yt-video-item { grid-template-columns: 1fr; }
+      .yt-video-thumb { width: 100%; }
+      .input-group input { min-width: 180px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="brand">
+    <div class="brand-icon">📖</div>
+    PODSCRIPT<span style="color:var(--primary)">STUDIO</span>
+  </div>
+  
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-view="pitch" onclick="switchView('pitch')">🎬 Pitch Deck</button>
+    <button class="nav-tab" data-view="youtube" onclick="switchView('youtube')">📺 YouTube</button>
+    <button class="nav-tab" data-view="transcribe" onclick="switchView('transcribe')">🎙️ Transcribe</button>
+    <button class="nav-tab" data-view="book" onclick="switchView('book')">📚 Book</button>
+  </div>
+
+  <div class="nav-actions">
+    <div class="model-badge">
+      <span class="model-dot" id="navModelDot"></span>
+      <span id="navModelText">AI Not Loaded</span>
+    </div>
+    <button class="btn" id="loadModelBtn" onclick="loadModel()">Load Whisper</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+  <!-- PITCH DECK VIEW -->
+  <div class="view active" id="view-pitch">
+    <div class="hero">
+      <div class="hero-bg" id="heroBg"></div>
+      <div class="hero-gradient"></div>
+      <div class="player-stage" id="playerStage">
+        <div id="playerTarget"></div>
+      </div>
+      <div class="hero-meta" id="heroMeta">
+        <div class="hero-label" id="heroLabel">Featured</div>
+        <h1 class="hero-title" id="heroTitle">Enter an RSS Feed to Begin</h1>
+        <p class="hero-desc" id="heroDesc">Load a podcast or video RSS feed below.</p>
+        <div class="hero-buttons">
+          <button class="btn-play" onclick="playCurrentHero()">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            Play
+          </button>
+          <button class="btn-secondary" onclick="scrollToEpisodes()">All Episodes</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-section" id="episodesSection">
+      <div class="section-header">
+        <h2 class="section-title" id="sectionTitle">Episodes</h2>
+        <div class="input-group">
+          <input type="url" id="rssInput" placeholder="Paste RSS feed URL...">
+          <button class="btn btn-primary" onclick="fetchRSS()">Load Feed</button>
+        </div>
+      </div>
+      <div class="grid" id="episodeGrid"></div>
+    </div>
+  </div>
+
+  <!-- YOUTUBE VIEW -->
+  <div class="view" id="view-youtube">
+    <div class="page-view">
+      <div class="page-header">
+        <h1>YouTube <span>Podcast Scraper</span></h1>
+        <p>Extract metadata from YouTube videos for transcription. Due to restrictions, audio download requires external tools.</p>
+      </div>
+
+      <div class="input-hero">
+        <input type="url" id="ytInput" placeholder="Paste YouTube video URL...">
+        <button class="btn btn-primary" onclick="processYouTube()">
+          <span id="ytBtnText">Extract Info</span>
+        </button>
+      </div>
+
+      <div class="info-box">
+        <h3>📋 How to Download YouTube Audio</h3>
+        <ol>
+          <li>Paste a YouTube URL above and click "Extract Info" to get video details</li>
+          <li>Use one of these free tools to download audio:
+            <ul style="margin-top: 0.5rem; list-style: disc; padding-left: 1.5rem;">
+              <li><a href="https://cobalt.tools" target="_blank">Cobalt</a> - High quality, no ads (recommended)</li>
+              <li><a href="https://y2mate.com" target="_blank">Y2Mate</a> - Simple MP3 download</li>
+              <li><a href="https://yt1s.com" target="_blank">YT1s</a> - Fast conversion</li>
+            </ul>
+          </li>
+          <li>Or use <code>yt-dlp</code> locally: <code>yt-dlp -x --audio-format mp3 URL</code></li>
+          <li>Upload the downloaded audio in the <strong>Transcribe</strong> tab</li>
+        </ol>
+      </div>
+
+      <div class="yt-video-list" id="ytVideoList"></div>
+    </div>
+  </div>
+
+  <!-- TRANSCRIBE VIEW -->
+  <div class="view" id="view-transcribe">
+    <div class="page-view">
+      <div class="page-header">
+        <h1>Transcribe <span>Audio</span></h1>
+        <p>Upload audio files or import from Pitch Deck. Transcription runs 100% locally in your browser using Whisper AI.</p>
+      </div>
+
+      <div class="model-loader" id="modelLoader">
+        <div class="model-loader-header">
+          <div class="model-loader-title">
+            <span class="model-dot" id="modelDot"></span>
+            Whisper AI Model
+          </div>
+          <button class="btn btn-primary" id="modelLoadBtn" onclick="loadModel()">Load Model</button>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="modelProgressBar"></div>
+        </div>
+        <div class="model-status-text" id="modelStatusText">Click "Load Model" to download Whisper (~40MB). Required once per session.</div>
+      </div>
+
+      <div class="upload-grid">
+        <div class="upload-box" id="audioUploadBox" onclick="document.getElementById('audioFileInput').click()">
+          <div class="upload-icon">🎵</div>
+          <div class="upload-title">Upload Audio Files</div>
+          <div class="upload-hint">MP3, WAV, M4A, OGG, WEBM</div>
+          <input type="file" id="audioFileInput" multiple accept="audio/*,.mp3,.wav,.m4a,.ogg,.webm" onchange="handleAudioUpload(event)" style="display:none">
+        </div>
+        <div class="upload-box" onclick="importFromPitchDeck()">
+          <div class="upload-icon">📺</div>
+          <div class="upload-title">Import from Pitch Deck</div>
+          <div class="upload-hint">Use episodes from RSS feed</div>
+        </div>
+      </div>
+
+      <div class="queue-section" id="queueSection" style="display: none;">
+        <div class="queue-sidebar">
+          <div class="queue-title">Transcription Queue</div>
+          <div class="queue-list" id="queueList"></div>
+        </div>
+        <div class="transcription-panel">
+          <div class="transcription-header-panel">
+            <div class="current-title" id="currentEpTitle">Select an episode</div>
+            <div class="transcription-controls">
+              <button class="btn btn-primary" id="transcribeBtn" onclick="transcribeCurrent()">▶ Transcribe</button>
+              <button class="btn" onclick="transcribeAll()">Transcribe All</button>
+              <div class="overall-progress">
+                <div class="overall-progress-label">Progress</div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar" id="overallProgressBar"></div>
+                </div>
+              </div>
+              <span style="font-size: 0.8rem; color: var(--text-dim);" id="progressText">0 / 0</span>
+            </div>
+          </div>
+          <div class="transcript-output" id="transcriptOutput">
+            <div class="transcript-placeholder">
+              <div class="transcript-placeholder-icon">📝</div>
+              <p>Transcript will appear here</p>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 0.5rem;">
+            <button class="btn btn-primary" id="toBookBtn" onclick="switchView('book')" disabled>Create Book →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOK VIEW -->
+  <div class="view" id="view-book">
+    <div class="page-view">
+      <div class="book-container">
+        <div class="book-preview" id="bookPreview">
+          <div class="book-title-page">
+            <h1 class="book-title-main" id="bookTitleDisplay">Your Podcast Book</h1>
+            <p class="book-subtitle" id="bookSubtitleDisplay">Transcribed conversations</p>
+            <div class="book-ornament">❧</div>
+            <p class="book-author" id="bookAuthorDisplay">Author</p>
+          </div>
+          <div id="bookChapters"></div>
+        </div>
+        <div class="book-settings">
+          <h3 class="settings-title">Book Settings</h3>
+          <div class="setting-group">
+            <label class="setting-label">Title</label>
+            <input type="text" class="setting-input" id="bookTitle" placeholder="Book title" oninput="updateBookPreview()">
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Subtitle</label>
+            <input type="text" class="setting-input" id="bookSubtitle" placeholder="Subtitle" oninput="updateBookPreview()">
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Author</label>
+            <input type="text" class="setting-input" id="bookAuthor" placeholder="Author name" oninput="updateBookPreview()">
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Chapter Style</label>
+            <select class="setting-select" id="chapterStyle" onchange="updateBookPreview()">
+              <option value="episode">Each Episode as Chapter</option>
+              <option value="combined">Combined Narrative</option>
+            </select>
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">Include</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label"><input type="checkbox" id="includeToc" checked onchange="updateBookPreview()"> Table of Contents</label>
+              <label class="checkbox-label"><input type="checkbox" id="includeDates" checked onchange="updateBookPreview()"> Episode Dates</label>
+            </div>
+          </div>
+          <div class="export-buttons">
+            <button class="export-btn pdf" onclick="exportBook('pdf')">📄 Export PDF</button>
+            <button class="export-btn html" onclick="exportBook('html')">📝 Export HTML</button>
+            <button class="export-btn txt" onclick="exportBook('txt')">📋 Export TXT</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal">
+    <button class="modal-close" onclick="toggleModal(false)">&times;</button>
+    <h2>About This Show</h2>
+    <p style="font-size: 1.1rem; margin-bottom: 0.75rem;" id="modalTitle"></p>
+    <p style="color: var(--text-dim);" id="modalDesc"></p>
+  </div>
+</div>
+
+<!-- Transformers.js -->
+<script type="module">
+  import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+  env.allowLocalModels = false;
+  env.useBrowserCache = true;
+  window.TransformersJS = { pipeline, env };
+</script>
+
+<script>
+// ============================================
+// STATE
+// ============================================
+const state = {
+  currentView: 'pitch',
+  modelLoaded: false,
+  transcriber: null,
+  feedMeta: null,
+  episodes: [],
+  activeHeroIndex: 0,
+  ytVideos: [],
+  queue: [],
+  queueIndex: 0,
+  transcripts: {},
+  transcriptionStatus: {},
+  isTranscribing: false
+};
+
+const API_BASE = window.location.origin;
+const CORS_PROXIES = [
+  url => `${API_BASE}/api/rss-proxy?url=${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`
+];
+
+// ============================================
+// NAVIGATION
+// ============================================
+function switchView(view) {
+  state.currentView = view;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`view-${view}`).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+  if (view === 'book') initBookView();
+}
+
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// ============================================
+// MODEL LOADING
+// ============================================
+async function loadModel() {
+  if (state.modelLoaded) { notify('Model already loaded!', 'success'); return; }
+
+  const btns = [document.getElementById('loadModelBtn'), document.getElementById('modelLoadBtn')];
+  const dots = [document.getElementById('navModelDot'), document.getElementById('modelDot')];
+  const progressBar = document.getElementById('modelProgressBar');
+  const statusText = document.getElementById('modelStatusText');
+  const navText = document.getElementById('navModelText');
+
+  btns.forEach(b => { if(b) { b.disabled = true; b.innerHTML = '<span class="spinner"></span>'; }});
+  dots.forEach(d => { if(d) d.className = 'model-dot loading'; });
+  statusText.textContent = 'Loading Whisper model...';
+
+  try {
+    while (!window.TransformersJS) await sleep(100);
+    const { pipeline } = window.TransformersJS;
+
+    state.transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en', {
+      progress_callback: (progress) => {
+        if (progress.status === 'downloading' || progress.status === 'loading') {
+          const pct = progress.progress || 0;
+          progressBar.style.width = `${pct}%`;
+          statusText.textContent = `${progress.status}: ${progress.file || 'files'} (${Math.round(pct)}%)`;
+        }
+      }
+    });
+
+    state.modelLoaded = true;
+    dots.forEach(d => { if(d) d.className = 'model-dot ready'; });
+    progressBar.style.width = '100%';
+    statusText.textContent = '✓ Model ready for transcription';
+    navText.textContent = 'AI Ready';
+    btns.forEach(b => { if(b) { b.textContent = '✓ Ready'; b.style.background = 'var(--success)'; b.disabled = true; }});
+    notify('Whisper model loaded!', 'success');
+  } catch (error) {
+    console.error('Model load error:', error);
+    dots.forEach(d => { if(d) d.className = 'model-dot'; });
+    statusText.textContent = `Error: ${error.message}`;
+    btns.forEach(b => { if(b) { b.disabled = false; b.textContent = 'Retry'; }});
+    notify('Model load failed', 'error');
+  }
+}
+
+// ============================================
+// PITCH DECK - RSS
+// ============================================
+async function fetchRSS() {
+  const url = document.getElementById('rssInput').value.trim();
+  if (!url) { notify('Enter an RSS feed URL', 'error'); return; }
+
+  notify('Fetching feed...', 'info');
+
+  try {
+    // Try server API first, then fallback to CORS proxies
+    let data = null;
+    
+    try {
+      const resp = await fetch(`${API_BASE}/api/feed?url=${encodeURIComponent(url)}`);
+      if (resp.ok) data = await resp.json();
+    } catch (e) { /* fallback */ }
+
+    if (!data) {
+      // Fallback to client-side parsing
+      let xmlText = null;
+      for (const proxyFn of CORS_PROXIES) {
+        try {
+          const resp = await fetch(proxyFn(url));
+          if (resp.ok) {
+            xmlText = await resp.text();
+            if (xmlText.includes('<rss') || xmlText.includes('<channel')) break;
+          }
+        } catch (e) { /* try next */ }
+      }
+      if (!xmlText) throw new Error('Could not fetch feed');
+      data = parseRSSClient(xmlText);
+    }
+
+    state.feedMeta = data.meta;
+    state.episodes = data.items;
+    renderPitchDeck();
+    notify(`Loaded ${state.episodes.length} episodes`, 'success');
+  } catch (error) {
+    console.error('RSS error:', error);
+    notify(`RSS Error: ${error.message}`, 'error');
+  }
+}
+
+function parseRSSClient(xmlText) {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(xmlText, 'text/xml');
+  const channel = xml.querySelector('channel');
+  if (!channel) throw new Error('Invalid RSS');
+
+  const getText = (p, s) => p.querySelector(s)?.textContent?.trim() || '';
+  const stripHtml = s => s ? s.replace(/<[^>]*>/g, '').trim() : '';
+
+  let feedImage = getText(channel, 'image url') || '';
+  const itunesImg = channel.querySelector('itunes\\:image');
+  if (itunesImg) feedImage = itunesImg.getAttribute('href') || feedImage;
+
+  const meta = {
+    title: getText(channel, 'title') || 'Untitled',
+    description: stripHtml(getText(channel, 'description')),
+    image: feedImage
+  };
+
+  const items = Array.from(channel.querySelectorAll('item')).slice(0, 100).map((item, i) => {
+    const enc = item.querySelector('enclosure');
+    const mediaUrl = enc?.getAttribute('url') || '';
+    if (!mediaUrl) return null;
+
+    const img = item.querySelector('itunes\\:image')?.getAttribute('href') || feedImage;
+    const dur = getText(item, 'itunes\\:duration');
+
+    return {
+      id: i,
+      title: getText(item, 'title') || `Episode ${i + 1}`,
+      description: stripHtml(getText(item, 'description') || getText(item, 'itunes\\:summary')),
+      mediaUrl,
+      kind: mediaUrl.includes('.mp4') || enc?.getAttribute('type')?.includes('video') ? 'video' : 'audio',
+      image: img,
+      pubDate: getText(item, 'pubDate'),
+      duration: dur
+    };
+  }).filter(Boolean);
+
+  return { meta, items };
+}
+
+function renderPitchDeck() {
+  if (state.episodes.length > 0) loadHero(0, false);
+  document.getElementById('sectionTitle').textContent = state.feedMeta?.title || 'Episodes';
+  
+  const grid = document.getElementById('episodeGrid');
+  grid.innerHTML = state.episodes.map((ep, i) => `
+    <div class="card" onclick="loadHero(${i}, true); window.scrollTo({top:0,behavior:'smooth'})">
+      <div class="card-img-wrap">
+        <img class="card-img" src="${escapeHtml(ep.image)}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 9%22><rect fill=%22%23222%22 width=%2216%22 height=%229%22/></svg>'">
+        <div class="card-badge">${ep.duration || ep.kind.toUpperCase()}</div>
+      </div>
+      <div class="card-content">
+        <div class="card-meta">EP ${state.episodes.length - i}</div>
+        <div class="card-title">${escapeHtml(ep.title)}</div>
+        <div class="card-desc">${escapeHtml(ep.description?.slice(0, 100) || '')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function loadHero(index, autoPlay = false) {
+  state.activeHeroIndex = index;
+  const ep = state.episodes[index];
+  if (!ep) return;
+
+  document.getElementById('heroTitle').textContent = ep.title;
+  document.getElementById('heroDesc').textContent = ep.description || '';
+  document.getElementById('heroLabel').textContent = ep.kind === 'video' ? 'Now Showing' : 'Now Playing';
+  document.getElementById('heroBg').style.backgroundImage = `url('${ep.image}')`;
+
+  const heroMeta = document.getElementById('heroMeta');
+  const playerTarget = document.getElementById('playerTarget');
+
+  if (autoPlay) {
+    heroMeta.style.opacity = '0';
+    setTimeout(() => { heroMeta.style.display = 'none'; startMedia(ep); }, 300);
+  } else {
+    heroMeta.style.display = 'block';
+    heroMeta.style.opacity = '1';
+    playerTarget.innerHTML = `<img class="player-cover" src="${ep.image}">`;
+  }
+}
+
+function playCurrentHero() {
+  const ep = state.episodes[state.activeHeroIndex];
+  if (!ep) return;
+  const heroMeta = document.getElementById('heroMeta');
+  heroMeta.style.opacity = '0';
+  setTimeout(() => { heroMeta.style.display = 'none'; startMedia(ep); }, 300);
+}
+
+function startMedia(ep) {
+  const target = document.getElementById('playerTarget');
+  target.innerHTML = '';
+  if (ep.kind === 'video') {
+    const vid = document.createElement('video');
+    vid.src = ep.mediaUrl;
+    vid.controls = true;
+    vid.autoplay = true;
+    target.appendChild(vid);
+  } else {
+    target.innerHTML = `<img class="player-cover" src="${ep.image}">`;
+    const aud = document.createElement('audio');
+    aud.src = ep.mediaUrl;
+    aud.controls = true;
+    aud.autoplay = true;
+    target.appendChild(aud);
+  }
+}
+
+function scrollToEpisodes() {
+  document.getElementById('episodesSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ============================================
+// YOUTUBE
+// ============================================
+async function processYouTube() {
+  const url = document.getElementById('ytInput').value.trim();
+  if (!url) { notify('Enter a YouTube URL', 'error'); return; }
+
+  const btn = document.getElementById('ytBtnText');
+  btn.innerHTML = '<span class="spinner"></span>';
+
+  try {
+    const videoId = extractYouTubeId(url);
+    if (!videoId) throw new Error('Invalid YouTube URL');
+
+    // Try server API first
+    let info = null;
+    try {
+      const resp = await fetch(`${API_BASE}/api/youtube/info?url=${encodeURIComponent(url)}`);
+      if (resp.ok) info = await resp.json();
+    } catch (e) { /* fallback */ }
+
+    if (!info) {
+      // Fallback to noembed
+      const resp = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+      info = {
+        id: videoId,
+        title: data.title || 'Unknown',
+        author: data.author_name || 'Unknown',
+        thumbnail: data.thumbnail_url || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+        url: `https://www.youtube.com/watch?v=${videoId}`
+      };
+    }
+
+    state.ytVideos.unshift(info);
+    renderYouTubeList();
+    notify('Video info extracted!', 'success');
+  } catch (error) {
+    notify(`YouTube Error: ${error.message}`, 'error');
+  } finally {
+    btn.textContent = 'Extract Info';
+  }
+}
+
+function extractYouTubeId(url) {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/shorts\/([^&\n?#]+)/,
+    /youtube\.com\/live\/([^&\n?#]+)/
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function renderYouTubeList() {
+  const list = document.getElementById('ytVideoList');
+  list.innerHTML = state.ytVideos.map(v => `
+    <div class="yt-video-item">
+      <img class="yt-video-thumb" src="${v.thumbnail}" alt="${escapeHtml(v.title)}">
+      <div class="yt-video-info">
+        <h4>${escapeHtml(v.title)}</h4>
+        <p>By ${escapeHtml(v.author)}</p>
+      </div>
+      <div class="yt-video-actions">
+        <a href="https://cobalt.tools" target="_blank" class="btn btn-primary" style="text-decoration:none">Download Audio</a>
+        <button class="btn" onclick="copyToClipboard('${v.url}')">Copy URL</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text);
+  notify('URL copied!', 'success');
+}
+
+// ============================================
+// TRANSCRIPTION
+// ============================================
+function handleAudioUpload(event) {
+  const files = Array.from(event.target.files).filter(f => f.type.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|webm)$/i.test(f.name));
+  if (!files.length) { notify('No audio files selected', 'error'); return; }
+
+  files.forEach((file, i) => {
+    state.queue.push({
+      id: Date.now() + i,
+      title: file.name.replace(/\.[^/.]+$/, ''),
+      duration: 'Local File',
+      audioFile: file,
+      isLocal: true
+    });
+  });
+
+  document.getElementById('queueSection').style.display = 'grid';
+  renderQueue();
+  notify(`Added ${files.length} file(s)`, 'success');
+}
+
+function importFromPitchDeck() {
+  if (!state.episodes.length) { notify('Load an RSS feed first', 'warning'); return; }
+
+  state.episodes.forEach(ep => {
+    if (!state.queue.find(q => q.id === ep.id)) {
+      state.queue.push({
+        id: ep.id,
+        title: ep.title,
+        duration: ep.duration,
+        audioUrl: ep.mediaUrl,
+        image: ep.image,
+        pubDate: ep.pubDate,
+        isLocal: false
+      });
+    }
+  });
+
+  document.getElementById('queueSection').style.display = 'grid';
+  renderQueue();
+  notify(`Imported ${state.episodes.length} episodes`, 'success');
+}
+
+function renderQueue() {
+  const list = document.getElementById('queueList');
+  const completed = state.queue.filter(q => state.transcripts[q.id]).length;
+
+  list.innerHTML = state.queue.map((item, i) => {
+    const hasTranscript = state.transcripts[item.id];
+    const status = state.transcriptionStatus[item.id] || {};
+    let cls = '', icon = '';
+    
+    if (hasTranscript) { cls = 'completed'; icon = '✓'; }
+    else if (status.status === 'error') { cls = 'error'; icon = '✕'; }
+    else if (status.status === 'transcribing') { cls = 'transcribing'; icon = '⏳'; }
+    else if (i === state.queueIndex) { cls = 'active'; }
+
+    return `
+      <div class="queue-item ${cls}" onclick="selectQueueItem(${i})">
+        <div class="queue-item-title">${escapeHtml(item.title)}</div>
+        <div class="queue-item-meta">${item.duration || 'Unknown'}</div>
+        <span class="queue-item-status">${icon}</span>
+        ${status.progress ? `<div class="queue-item-progress"><div class="queue-item-progress-bar" style="width:${status.progress}%"></div></div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  const pct = state.queue.length ? (completed / state.queue.length * 100) : 0;
+  document.getElementById('overallProgressBar').style.width = `${pct}%`;
+  document.getElementById('progressText').textContent = `${completed} / ${state.queue.length}`;
+  document.getElementById('toBookBtn').disabled = completed === 0;
+}
+
+function selectQueueItem(index) {
+  state.queueIndex = index;
+  const item = state.queue[index];
+  document.getElementById('currentEpTitle').textContent = item.title;
+
+  if (state.transcripts[item.id]) {
+    document.getElementById('transcriptOutput').innerHTML = `<div class="transcript-text">${state.transcripts[item.id]}</div>`;
+  } else {
+    document.getElementById('transcriptOutput').innerHTML = `<div class="transcript-placeholder"><div class="transcript-placeholder-icon">📝</div><p>Ready to transcribe</p></div>`;
+  }
+  renderQueue();
+}
+
+async function transcribeCurrent() {
+  const item = state.queue[state.queueIndex];
+  if (!item) return;
+  if (state.transcripts[item.id]) { notify('Already transcribed', 'success'); return; }
+  if (!state.modelLoaded) { notify('Load the model first', 'warning'); return; }
+
+  state.isTranscribing = true;
+  state.transcriptionStatus[item.id] = { status: 'transcribing', progress: 10 };
+  renderQueue();
+
+  const btn = document.getElementById('transcribeBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Processing...';
+
+  try {
+    let audioData;
+    if (item.isLocal) {
+      audioData = await loadAndDecodeAudio(item.audioFile);
+    } else {
+      state.transcriptionStatus[item.id] = { status: 'transcribing', progress: 5 };
+      renderQueue();
+      audioData = await downloadAndDecodeAudio(item.audioUrl);
+    }
+
+    state.transcriptionStatus[item.id] = { status: 'transcribing', progress: 30 };
+    renderQueue();
+
+    let result;
+    try {
+      result = await state.transcriber({ raw: audioData, sampling_rate: 16000 }, {
+        chunk_length_s: 30, stride_length_s: 5, language: 'english', task: 'transcribe'
+      });
+    } catch (e) {
+      const blob = float32ToWavBlob(audioData, 16000);
+      const url = URL.createObjectURL(blob);
+      result = await state.transcriber(url);
+      URL.revokeObjectURL(url);
+    }
+
+    state.transcriptionStatus[item.id] = { status: 'completed', progress: 100 };
+    state.transcripts[item.id] = formatTranscript(result.text);
+
+    document.getElementById('transcriptOutput').innerHTML = `<div class="transcript-text">${state.transcripts[item.id]}</div>`;
+    renderQueue();
+    notify('Transcription complete!', 'success');
+  } catch (error) {
+    console.error('Transcription error:', error);
+    state.transcriptionStatus[item.id] = { status: 'error', error: error.message };
+    renderQueue();
+    notify(`Error: ${error.message}`, 'error');
+  } finally {
+    state.isTranscribing = false;
+    btn.disabled = false;
+    btn.innerHTML = '▶ Transcribe';
+  }
+}
+
+async function transcribeAll() {
+  if (!state.modelLoaded) { notify('Load the model first', 'warning'); return; }
+  for (let i = 0; i < state.queue.length; i++) {
+    if (state.transcripts[state.queue[i].id]) continue;
+    state.queueIndex = i;
+    selectQueueItem(i);
+    await transcribeCurrent();
+    await sleep(500);
+  }
+  notify('All transcriptions complete!', 'success');
+}
+
+// ============================================
+// AUDIO PROCESSING
+// ============================================
+async function loadAndDecodeAudio(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try { resolve(await decodeAndResample(e.target.result)); }
+      catch (err) { reject(err); }
+    };
+    reader.onerror = () => reject(new Error('File read failed'));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+async function downloadAndDecodeAudio(url) {
+  for (const proxyFn of CORS_PROXIES) {
+    try {
+      const resp = await fetch(proxyFn(url));
+      if (resp.ok) {
+        const buffer = await resp.arrayBuffer();
+        if (buffer.byteLength > 1000) return await decodeAndResample(buffer);
+      }
+    } catch (e) { /* try next */ }
+  }
+  throw new Error('Could not download audio');
+}
+
+async function decodeAndResample(arrayBuffer) {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  try {
+    const audioBuffer = await ctx.decodeAudioData(arrayBuffer.slice(0));
+    let audioData;
+    if (audioBuffer.numberOfChannels === 1) {
+      audioData = audioBuffer.getChannelData(0);
+    } else {
+      const left = audioBuffer.getChannelData(0);
+      const right = audioBuffer.getChannelData(1);
+      audioData = new Float32Array(left.length);
+      for (let i = 0; i < left.length; i++) audioData[i] = (left[i] + right[i]) / 2;
+    }
+    if (audioBuffer.sampleRate !== 16000) audioData = resample(audioData, audioBuffer.sampleRate, 16000);
+    
+    let max = 0;
+    for (let i = 0; i < audioData.length; i++) if (Math.abs(audioData[i]) > max) max = Math.abs(audioData[i]);
+    if (max > 0 && max < 0.01) { const s = 0.5 / max; for (let i = 0; i < audioData.length; i++) audioData[i] *= s; }
+    
+    await ctx.close();
+    return audioData;
+  } catch (e) { await ctx.close(); throw e; }
+}
+
+function resample(data, fromRate, toRate) {
+  const ratio = fromRate / toRate;
+  const newLen = Math.round(data.length / ratio);
+  const result = new Float32Array(newLen);
+  for (let i = 0; i < newLen; i++) {
+    const idx = i * ratio;
+    const floor = Math.floor(idx);
+    const ceil = Math.min(floor + 1, data.length - 1);
+    const t = idx - floor;
+    result[i] = data[floor] * (1 - t) + data[ceil] * t;
+  }
+  return result;
+}
+
+function float32ToWavBlob(float32, sampleRate) {
+  const len = float32.length;
+  const buffer = new ArrayBuffer(44 + len * 2);
+  const view = new DataView(buffer);
+  const writeStr = (off, str) => { for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i)); };
+  writeStr(0, 'RIFF'); view.setUint32(4, 36 + len * 2, true); writeStr(8, 'WAVE'); writeStr(12, 'fmt ');
+  view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true); view.setUint16(34, 16, true); writeStr(36, 'data'); view.setUint32(40, len * 2, true);
+  let off = 44;
+  for (let i = 0; i < len; i++) {
+    const s = Math.max(-1, Math.min(1, float32[i]));
+    view.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    off += 2;
+  }
+  return new Blob([buffer], { type: 'audio/wav' });
+}
+
+function formatTranscript(text) {
+  if (!text || text.length < 5) return '<p>No speech detected.</p>';
+  const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+  const paragraphs = [];
+  for (let i = 0; i < sentences.length; i += 4) {
+    const para = sentences.slice(i, i + 4).join(' ').trim();
+    if (para) paragraphs.push(`<p>${escapeHtml(para)}</p>`);
+  }
+  return paragraphs.join('\n') || '<p>Transcription complete.</p>';
+}
+
+// ============================================
+// BOOK
+// ============================================
+function initBookView() {
+  document.getElementById('bookTitle').value = state.feedMeta?.title || 'Your Podcast Book';
+  document.getElementById('bookSubtitle').value = 'Transcribed conversations';
+  document.getElementById('bookAuthor').value = '';
+  updateBookPreview();
+}
+
+function updateBookPreview() {
+  const title = document.getElementById('bookTitle').value || 'Your Podcast Book';
+  const subtitle = document.getElementById('bookSubtitle').value || '';
+  const author = document.getElementById('bookAuthor').value || '';
+  const style = document.getElementById('chapterStyle').value;
+  const includeDates = document.getElementById('includeDates').checked;
+
+  document.getElementById('bookTitleDisplay').textContent = title;
+  document.getElementById('bookSubtitleDisplay').textContent = subtitle;
+  document.getElementById('bookAuthorDisplay').textContent = author;
+
+  const container = document.getElementById('bookChapters');
+  const transcribed = state.queue.filter(q => state.transcripts[q.id]);
+
+  if (style === 'episode') {
+    container.innerHTML = transcribed.map((item, i) => `
+      <div class="chapter">
+        <div class="chapter-header">
+          <div class="chapter-number">Chapter ${i + 1}</div>
+          <div class="chapter-title">${escapeHtml(item.title)}</div>
+          ${includeDates && item.pubDate ? `<p style="color:#8b7355;font-size:0.8rem;margin-top:0.25rem">${formatDate(item.pubDate)}</p>` : ''}
+        </div>
+        <div class="chapter-content">${state.transcripts[item.id]}</div>
+      </div>
+    `).join('');
+  } else {
+    container.innerHTML = `<div class="chapter"><div class="chapter-content">${transcribed.map(q => state.transcripts[q.id]).join('')}</div></div>`;
+  }
+}
+
+function exportBook(format) {
+  const title = document.getElementById('bookTitle').value || 'Your Podcast Book';
+  const subtitle = document.getElementById('bookSubtitle').value || '';
+  const author = document.getElementById('bookAuthor').value || '';
+  const style = document.getElementById('chapterStyle').value;
+  const includeDates = document.getElementById('includeDates').checked;
+  const includeToc = document.getElementById('includeToc').checked;
+  const transcribed = state.queue.filter(q => state.transcripts[q.id]);
+
+  if (format === 'txt') {
+    let txt = `${'='.repeat(50)}\n${title.toUpperCase()}\n${subtitle}\n\nBy ${author}\n${'='.repeat(50)}\n\n`;
+    transcribed.forEach((item, i) => {
+      if (style === 'episode') txt += `\n${'─'.repeat(30)}\nCHAPTER ${i+1}: ${item.title}\n${includeDates && item.pubDate ? formatDate(item.pubDate) + '\n' : ''}${'─'.repeat(30)}\n\n`;
+      const div = document.createElement('div'); div.innerHTML = state.transcripts[item.id];
+      div.querySelectorAll('p').forEach(p => txt += p.textContent + '\n\n');
+    });
+    downloadFile(txt, `${sanitize(title)}.txt`, 'text/plain');
+  } else {
+    let toc = '';
+    if (includeToc && style === 'episode') {
+      toc = `<div style="page-break-after:always;padding:2rem 0"><h2 style="text-align:center;font-family:'Cormorant Garamond',serif">Contents</h2><ol style="list-style:none;padding:1rem 0">${transcribed.map((q,i) => `<li style="padding:0.4rem 0;border-bottom:1px dotted #ccc"><b>Chapter ${i+1}</b>: ${escapeHtml(q.title)}</li>`).join('')}</ol></div>`;
+    }
+    
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(title)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600&display=swap" rel="stylesheet">
+<style>@page{margin:1in}body{font-family:'Cormorant Garamond',Georgia,serif;line-height:1.8;max-width:650px;margin:0 auto;padding:2rem;color:#1a1612}
+.title-page{text-align:center;page-break-after:always;padding:3rem 0}h1{font-size:2.2rem;margin-bottom:.5rem}
+.subtitle{font-size:1.1rem;color:#8b7355;margin-bottom:1.5rem}.author{font-style:italic;font-size:1.2rem}
+.ornament{font-size:1.2rem;margin:1.5rem 0;color:#c4563a}.chapter{page-break-before:always;margin-bottom:2rem}
+.chapter-number{font-size:.8rem;text-transform:uppercase;letter-spacing:.2em;color:#c4563a;margin-bottom:.3rem}
+.chapter-title{font-size:1.4rem;font-weight:600;margin-bottom:1rem}p{margin-bottom:.85rem;text-indent:1.25em;text-align:justify}p:first-of-type{text-indent:0}</style></head>
+<body><div class="title-page"><h1>${escapeHtml(title)}</h1><p class="subtitle">${escapeHtml(subtitle)}</p><div class="ornament">❧</div><p class="author">${escapeHtml(author)}</p></div>
+${toc}${transcribed.map((q,i) => `<div class="chapter">${style==='episode'?`<div class="chapter-number">Chapter ${i+1}</div><h2 class="chapter-title">${escapeHtml(q.title)}</h2>${includeDates&&q.pubDate?`<p style="color:#8b7355;font-size:0.9rem">${formatDate(q.pubDate)}</p>`:''}`:''}${state.transcripts[q.id]}</div>`).join('')}
+</body></html>`;
+
+    if (format === 'pdf') {
+      const win = window.open('', '_blank');
+      win.document.write(html); win.document.close();
+      notify('Print dialog opening - Save as PDF', 'info');
+      setTimeout(() => win.print(), 500);
+    } else {
+      downloadFile(html, `${sanitize(title)}.html`, 'text/html');
+    }
+  }
+}
+
+// ============================================
+// UTILITIES
+// ============================================
+function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text || ''; return div.innerHTML; }
+function formatDate(dateStr) { if (!dateStr) return ''; try { return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); } catch { return dateStr; } }
+function sanitize(name) { return (name || 'book').replace(/[^a-z0-9]/gi, '_').slice(0, 50); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function downloadFile(content, filename, mime) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([content], { type: mime })); a.download = filename; a.click(); URL.revokeObjectURL(a.href); notify(`Downloaded ${filename}`, 'success'); }
+function notify(message, type = 'info') { document.querySelector('.notification')?.remove(); const n = document.createElement('div'); n.className = `notification ${type}`; n.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span> ${message}`; document.body.appendChild(n); setTimeout(() => { n.style.opacity = '0'; setTimeout(() => n.remove(), 300); }, 4000); }
+function toggleModal(show) { const m = document.getElementById('aboutModal'); if (show) { document.getElementById('modalTitle').textContent = state.feedMeta?.title || ''; document.getElementById('modalDesc').textContent = state.feedMeta?.description || ''; m.classList.add('open'); } else { m.classList.remove('open'); } }
+
+// Drag & drop
+const uploadBox = document.getElementById('audioUploadBox');
+uploadBox?.addEventListener('dragover', e => { e.preventDefault(); uploadBox.classList.add('dragover'); });
+uploadBox?.addEventListener('dragleave', () => uploadBox.classList.remove('dragover'));
+uploadBox?.addEventListener('drop', e => { e.preventDefault(); uploadBox.classList.remove('dragover'); handleAudioUpload({ target: { files: e.dataTransfer.files } }); });
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === '1' && e.altKey) switchView('pitch');
+  if (e.key === '2' && e.altKey) switchView('youtube');
+  if (e.key === '3' && e.altKey) switchView('transcribe');
+  if (e.key === '4' && e.altKey) switchView('book');
+});
+</script>
+</body>
+</html>
